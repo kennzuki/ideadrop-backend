@@ -30,18 +30,76 @@ router.get('/:id', async (req, res, next) => {
   }
 });
 
-// // Create a new idea
-// router.post('/', async (req, res, next) => {
-//   try {
-//     const { title } = req.body;
-//     if (!title) {
-//       return res.status(400).json({ error: 'Title is required' });
-//     }
-//     const newIdea = await Idea.create({ title });
-//     res.status(201).json(newIdea);
-//   } catch (err) {
-//     next(err);
-//   }
-// });
+// Create a new idea
+router.post('/', async (req, res, next) => {
+  try {
+    const { title, summary, description, tags } = req.body || {};
+
+    if (!title?.trim() || !summary?.trim() || !description?.trim()) {
+      res.status(400);
+      throw new Error('Title, summary and description are required');
+    }
+
+    const newIdea = new Idea({
+      title,
+      summary,
+      description,
+      tags:
+        typeof tags === 'string'
+          ? tags
+              .split(',')
+              .map((tag) => tag.trim())
+              .filter(Boolean)
+          : Array.isArray(tags)
+          ? tags
+          : [],
+    });
+    const savedIdeas = await newIdeas.save();
+    res.status(201).json(savedIdeas);
+  } catch (err) {
+    console.log(err);
+    next(err);
+  }
+});
+
+//delete 
+router.delete('/:id', async (req, res, next) => {
+  try {
+    const {id} = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(404).json({ error: 'Invalid ID' });
+    }
+    const idea = await Idea.findByIdAndDelete(id);
+    if (!idea) {
+      return res.status(404).json({ error: 'Idea not found' });
+    }
+    res.json(idea);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// update idea
+
+router.put('/:id', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(404).json({ error: 'Invalid ID' });
+    }
+      const updatedIdea = await Idea.findByIdAndUpdate(id, {
+          title,
+          summary,
+          description,
+          tags:Array.isArray(tags)?tags:tags.split(',').map((tag) => tag.trim()),
+    }, { new: true,runValidators: true });
+    if (!idea) {
+      return res.status(404).json({ error: 'Idea not found' });
+    }
+    res.json(updatedIdea)
+  } catch (err) {
+    next(err);
+  }
+})
 
 export default router;
