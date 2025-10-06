@@ -1,33 +1,47 @@
 import express from 'express';
-const router=express.Router();
+import Idea from '../models/Ideas.js';
+const router = express.Router();
+import mongoose from 'mongoose';
 
-router.get('/',(req,res)=>{
-    const ideas=[
-        {
-            id:1,
-            title:"title1",
-            description:"description1"
-        },
-        {
-            id:2,
-            title:"title2",
-            description:"description2"
-        },
-        {
-            id:3,
-            title:"title3",
-            description:"description3"
-        }
-    ]
-    res.status(400)
-    throw new Error("error")
-})
+// Get all ideas
+router.get('/', async (req, res, next) => {
+  try {
+    const ideas = await Idea.find();
+    res.json(ideas);
+  } catch (err) {
+    next(err);
+  }
+});
 
-router.post('/',(req,res)=>{
-    const {title}=req.body
-    
-    res.send(title)
-})
+// Get idea by ID
+router.get('/:id', async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(404).json({ error: 'Invalid ID' });
+    }
+    const idea = await Idea.findById(id);
+    if (!idea) {
+      return res.status(404).json({ error: 'Idea not found' });
+    }
+    res.json(idea);
+  } catch (err) {
+    next(err);
+  }
+});
 
+// // Create a new idea
+// router.post('/', async (req, res, next) => {
+//   try {
+//     const { title } = req.body;
+//     if (!title) {
+//       return res.status(400).json({ error: 'Title is required' });
+//     }
+//     const newIdea = await Idea.create({ title });
+//     res.status(201).json(newIdea);
+//   } catch (err) {
+//     next(err);
+//   }
+// });
 
-export default router
+export default router;
