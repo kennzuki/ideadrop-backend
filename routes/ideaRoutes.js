@@ -31,7 +31,7 @@ router.get('/:id', async (req, res, next) => {
 });
 
 // Create a new idea
-router.post('/', async (req, res, next) => {
+router.post('/',  async (req, res, next) => {
   try {
     const { title, summary, description, tags } = req.body || {};
 
@@ -53,9 +53,11 @@ router.post('/', async (req, res, next) => {
           : Array.isArray(tags)
           ? tags
           : [],
+     
     });
-    const savedIdeas = await newIdeas.save();
-    res.status(201).json(savedIdeas);
+
+    const savedIdea = await newIdea.save();
+    res.status(201).json(savedIdea);
   } catch (err) {
     console.log(err);
     next(err);
