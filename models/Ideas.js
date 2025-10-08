@@ -2,10 +2,10 @@ import mongoose from 'mongoose';
 
 const ideaSchema = new mongoose.Schema(
   {
-    user: {
+     user: {
       type: mongoose.Schema.Types.ObjectId,
-      required: true,
       ref: 'User',
+      required: true,
     },
     
     title: {
