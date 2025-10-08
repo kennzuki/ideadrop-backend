@@ -54,4 +54,18 @@ router.post('/register', async (req, res, next) => {
   }
 });
 
+// @route POST api/auth/logout -  remove the token
+router.post('/logout', async (req, res, next) => {
+  try {
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    });
+    res.status(200).json({ message: 'Logout successful' });
+  } catch (err) {
+    next(err);
+  }
+});
+
 export default router;
